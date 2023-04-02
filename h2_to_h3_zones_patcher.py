@@ -43,13 +43,13 @@ for zone_name in zones_list:
     areas_block_list = root.find(".//block[@name='zones']").find("./element[@index='" + str(i) + "']").findall(".//block[@name='areas']")
     for area_block in areas_block_list:
         areas_end = False
-        areas_list = []
         j = 0
         while (areas_end == False):
             search_string = "./element[@index='" + str(j) + "']"
             element = area_block.find(search_string)
             
             if element is not None:
+                out.write("\n")
                 out.write(element.find("./field[@name='name']").text.strip() + "\n")
                 out.write(element.find("./field[@name='area flags']").text.strip() + "\n")
                 out.write(element.find("./field[@name='runtime starting index']").text.strip() + "\n")
@@ -58,11 +58,31 @@ for zone_name in zones_list:
                 j += 1
             else:
                 areas_end = True
-    i += 1
+    
     
     # Firing positions
     out.write("\nFiring Positions: \n")
     fpos_block_list = root.find(".//block[@name='zones']").find("./element[@index='" + str(i) + "']").findall(".//block[@name='firing positions']")
+    for fpos_block in fpos_block_list:
+        fpos_end = False
+        j = 0
+        while (fpos_end == False):
+            search_string = "./element[@index='" + str(j) + "']"
+            element = fpos_block.find(search_string)
+            
+            if element is not None:
+                out.write("\nindex = " + str(j) + "\n")
+                out.write(element.find("./field[@name='position (local)']").text.strip() + "\n")
+                out.write(element.find("./field[@name='reference frame']").text.strip() + "\n")
+                out.write(element.find("./field[@name='flags']").text.strip() + "\n")
+                out.write(element.find("./block_index[@name='short block index']").attrib['index'].strip() + "\n")
+                out.write(element.find("./field[@name='cluster index']").text.strip() + "\n")
+                out.write(element.find("./field[@name='normal']").text.strip() + "\n")
+                j += 1
+            else:
+                fpos_end = True
+
+    i += 1
 out.close()
 
 # Zone file handling
