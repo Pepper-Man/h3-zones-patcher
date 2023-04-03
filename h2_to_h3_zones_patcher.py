@@ -28,7 +28,6 @@ for zones_block in zones_start_blocks:
         element = zones_block.find(search_string)
         
         if element is not None:
-            #zones_list.append(i)
             zones_list.append(element.find("./field[@name='name']").text.strip())
             i += 1
         else:
@@ -111,6 +110,7 @@ for line in text:
 
 data.close()
 
+# Ask user to add blank zones, areas and firing positions to their scenario
 while (True):  
     choice = input("\nPlease add the correct number of areas and firing positions\nto each zone as per the information above.\nType \"continue\" once done to begin the patching process:\n")
     if (choice.lower() == "continue"):
@@ -120,12 +120,13 @@ while (True):
 #####################################################
 # PATCHING START
 
+# Runs tool patch-tag-field, passing the necessary arguments
 def run_tool(field, data):
     toolpath = h3ek_directory.strip('"') + '\\tool.exe'
     command = [toolpath, "patch-tag-field", h3_scenario, field, data]
     os.chdir(h3ek_directory.replace('\\', '/').strip('"'))
     process = subprocess.Popen(' '.join(f'"{arg}"' for arg in command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output, error = process.communicate()
+    output = process.communicate()
     print(output.decode('utf-8').strip() + "\n")
 
 with open('zones_output.txt', 'r') as data:
@@ -134,6 +135,7 @@ with open('zones_output.txt', 'r') as data:
 open("batched_commands.txt", 'w').close() # Clear previous commands
 bch_out = open('batched_commands.txt', 'a')
 
+# Variables
 zone = -1
 areas = False
 fpos = False
@@ -164,6 +166,8 @@ for line in text:
         fpos_data_count = 0
         fpos_index = 0
         continue
+    
+    # Patch areas
     elif (areas):
         # line is area data
         if (previous_was_actualflag):
@@ -199,7 +203,7 @@ for line in text:
             area_data_count = 0
             area_index += 1
         
-    ### FIRING POSITION FUNCTIONALITY
+    # Patch Firing Positions
     elif (fpos):
         if (fpos_flag_line_skip > 0):
             fpos_flag_line_skip -= 1
@@ -248,7 +252,4 @@ for line in text:
             fpos_data_count = 0
             fpos_index += 1
         
-
-
-
 bch_out.close()
