@@ -1,3 +1,4 @@
+import os
 import re
 import configparser
 import subprocess
@@ -89,9 +90,10 @@ out.close()
 # PATCHING START
 
 def run_tool(field, data):
-    toolpath = h3ek_directory.strip('"') + "\\tool.exe"
-    command = [toolpath, "patch-tag-field", "\"pepperh2\levels\oldmombasa\oldmombasa.scenario\"", field, data]
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    toolpath = h3ek_directory.strip('"') + '\\tool.exe'
+    command = [toolpath, "patch-tag-field", "pepperh2\levels\oldmombasa\oldmombasa.scenario", field, data]
+    os.chdir('C:/Program Files (x86)/Steam/steamapps/common/H3EK')
+    process = subprocess.Popen(' '.join(f'"{arg}"' for arg in command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = process.communicate()
     print(output.decode('utf-8'))
     print(error.decode('utf-8'))
@@ -99,23 +101,28 @@ def run_tool(field, data):
 with open('zones_output.txt', 'r') as data:
     text = data.readlines()
 
+open("batched_commands.txt", 'w').close() # Clear previous commands
+bch_out = open('batched_commands.txt', 'a')
+
 zone = -1
 areas = False
 fpos = False
 area_index = -1
+area_data_count = 0
+previous_was_actualflag = False
 
 for line in text:
-    area_data_count = 0
-    
     if ("Zone:" in line):
         zone += 1
+        print("next zone")
         # line is zone header
         continue
     elif ("Areas:" in line):
         # line is areas header
         areas = True
         fpos = False
-        area_index += 1
+        area_index = 0
+        area_data_count = 0
         continue
     elif ("Firing Positions:" in line):
         # line is fpos header
@@ -124,12 +131,41 @@ for line in text:
         continue
     elif (areas):
         # line is area data
+        if (previous_was_actualflag):
+            previous_was_actualflag = False
+            continue
         if (area_data_count == 0):
             # line is area name
-            position_field = "scenario_struct_definition[0].zones[" + str(zone) + "].areas[" + str(area_index) + "].name"
-            run_tool(position_field, line)
+            field_path = "scenario_struct_definition[0].zones[" + str(zone) + "].areas[" + str(area_index) + "].name"
+            print("patching " + line.strip())
+            run_tool(field_path, line.strip())
+            area_data_count += 1
+        elif (area_data_count == 1):
+            # line is area flags
+            field_path = "scenario_struct_definition[0].zones[" + str(zone) + "].areas[" + str(area_index) + "].area flags"
+            print("area flags")
+            run_tool(field_path, line.strip())
+            area_data_count += 1
+            if (line.strip() != "0"):
+                previous_was_actualflag = True
+        elif (area_data_count == 2):
+            # line is runtime starting index
+            area_data_count += 1
+            continue
+        elif (area_data_count == 3):
+            # line is runtime count
+            area_data_count += 1
+            continue
+        elif (area_data_count == 4):
+            # line is manual reference frame
+            field_path = "scenario_struct_definition[0].zones[" + str(zone) + "].areas[" + str(area_index) + "].manual reference frame"
+            print("manual ref frame = " + line.strip())
+            run_tool(field_path, ",-1")
+            area_data_count = 0
+            area_index += 1
+        
 
-
+bch_out.close()
 for fire_pos in all_positions:
     fire_pos = fire_pos.split('\n')
     count = 0
