@@ -7,6 +7,7 @@ import xml.etree.ElementTree as ET
 # File Paths
 config = configparser.ConfigParser()
 config.read('options.ini')
+h3_scenario = config['config']['h3_scenario_to_patch'].split("tags\\",1)[1].strip('"')
 h3ek_directory = config['config']['root_h3ek_directory']
 h2ek_directory = config['config']['root_h2ek_directory']
 extr_scen = config['config']['extracted_h2_scenario']
@@ -121,7 +122,7 @@ while (True):
 
 def run_tool(field, data):
     toolpath = h3ek_directory.strip('"') + '\\tool.exe'
-    command = [toolpath, "patch-tag-field", "pepperh2\levels\oldmombasa\oldmombasa.scenario", field, data]
+    command = [toolpath, "patch-tag-field", h3_scenario, field, data]
     os.chdir(h3ek_directory.replace('\\', '/').strip('"'))
     process = subprocess.Popen(' '.join(f'"{arg}"' for arg in command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = process.communicate()
