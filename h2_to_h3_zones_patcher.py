@@ -95,7 +95,6 @@ with open('zones_output.txt', 'r') as data:
 zones_count = 0
 areas_count = 0
 fpos_count = 0
-cont_process = False
 
 for line in text:
     if ("Zone:" in line):
@@ -111,10 +110,11 @@ for line in text:
 
 data.close()
 
-while (cont_process == False):  
+while (True):  
     choice = input("\nPlease add the correct number of areas and firing positions\nto each zone as per the information above.\nType \"continue\" once done to begin the patching process:\n")
     if (choice.lower() == "continue"):
         break
+    
 # DATA CONVERSION DONE
 #####################################################
 # PATCHING START
