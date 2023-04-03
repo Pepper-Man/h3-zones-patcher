@@ -198,6 +198,8 @@ for line in text:
 
 
 bch_out.close()
+
+"""
 for fire_pos in all_positions:
     fire_pos = fire_pos.split('\n')
     count = 0
@@ -255,3 +257,4 @@ for fire_pos in all_positions:
     run_tool(normal_field, normal)
     
     print("firing position " + index + " done")
+"""
