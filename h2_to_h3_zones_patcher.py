@@ -61,7 +61,7 @@ for zone_name in zones_list:
     
     
     # Firing positions
-    out.write("Firing Positions:")
+    out.write("Firing Positions:\n")
     fpos_block_list = root.find(".//block[@name='zones']").find("./element[@index='" + str(i) + "']").findall(".//block[@name='firing positions']")
     for fpos_block in fpos_block_list:
         fpos_end = False
@@ -138,7 +138,10 @@ zone = -1
 areas = False
 fpos = False
 area_index = -1
+fpos_index = -1
 area_data_count = 0
+fpos_data_count = 0
+fpos_flag_line_skip = 0
 previous_was_actualflag = False
 
 for line in text:
@@ -158,6 +161,8 @@ for line in text:
         # line is fpos header
         fpos = True
         areas = False
+        fpos_data_count = 0
+        fpos_index = 0
         continue
     elif (areas):
         # line is area data
@@ -194,67 +199,56 @@ for line in text:
             area_data_count = 0
             area_index += 1
         
-### FIRING POSITION FUNCTIONALITY
+    ### FIRING POSITION FUNCTIONALITY
+    elif (fpos):
+        if (fpos_flag_line_skip > 0):
+            fpos_flag_line_skip -= 1
+            continue
+        if (fpos_data_count == 0):
+            # line is fpos index
+            print("firing position " + line.strip() + " patch start")
+            fpos_data_count += 1
+        # line is fpos data
+        elif (fpos_data_count == 1):
+            # line is fpos position
+            field_path = "scenario_struct_definition[0].zones[" + str(zone) + "].firing positions[" + str(fpos_index) + "].position (local)"
+            print("patching position")
+            run_tool(field_path, line.strip())
+            fpos_data_count += 1
+        elif (fpos_data_count == 2):
+            # line is fpos ref frame
+            field_path = "scenario_struct_definition[0].zones[" + str(zone) + "].firing positions[" + str(fpos_index) + "].reference frame"
+            print("patching ref frame")
+            run_tool(field_path, ",-1")
+            fpos_data_count += 1
+        elif (fpos_data_count == 3):
+            # line is fpos flags
+            field_path = "scenario_struct_definition[0].zones[" + str(zone) + "].firing positions[" + str(fpos_index) + "].flags"
+            print("patching flags")
+            run_tool(field_path, re.sub(r'[^0-9]', '', line.strip())) # make sure to only grab the number
+            fpos_data_count += 1
+            fpos_flag_line_skip = 2
+        elif (fpos_data_count == 4):
+            # line is area
+            field_path = "scenario_struct_definition[0].zones[" + str(zone) + "].firing positions[" + str(fpos_index) + "].area"
+            print("patching area")
+            run_tool(field_path, ("," + line.strip()))
+            fpos_data_count += 1
+        elif (fpos_data_count == 5):
+            # line is cluster index
+            field_path = "scenario_struct_definition[0].zones[" + str(zone) + "].firing positions[" + str(fpos_index) + "].cluster index"
+            print("patching cluster index")
+            run_tool(field_path, line.strip())
+            fpos_data_count += 1
+        elif (fpos_data_count == 6):
+            # line is normal
+            field_path = "scenario_struct_definition[0].zones[" + str(zone) + "].firing positions[" + str(fpos_index) + "].normal"
+            print("patching normal")
+            run_tool(field_path, line.strip('\n'))
+            fpos_data_count = 0
+            fpos_index += 1
+        
+
 
 
 bch_out.close()
-
-"""
-for fire_pos in all_positions:
-    fire_pos = fire_pos.split('\n')
-    count = 0
-    index = ""
-    position = ""
-    ref_frame = ""
-    flags = ""
-    area = ","
-    cluster = ""
-    normal = ""
-    for parameter in fire_pos:
-        if (count == 0):
-            index = parameter
-            count += 1
-            continue
-        if (count == 1):
-            position = parameter
-            count += 1
-            continue
-        if (count == 2):
-            ref_frame = parameter
-            count += 1
-            continue
-        if (count == 3):
-            flags = parameter
-            count += 1
-            continue
-        if (count == 4):
-            area += parameter
-            count += 1
-            continue
-        if (count == 5):
-            cluster = parameter
-            count += 1
-            continue
-        if (count == 6):
-            normal = parameter
-            count += 1
-            continue
-        if (count > 6):
-            count = 0
-    
-    position_field = "scenario_struct_definition[0].zones[" + str(zone_index) + "].firing positions[" + index + "].position (local)"
-    frame_field = "scenario_struct_definition[0].zones[" + str(zone_index) + "].firing positions[" + index + "].reference frame"
-    flag_field = "scenario_struct_definition[0].zones[" + str(zone_index) + "].firing positions[" + index + "].flags"
-    area_field = "scenario_struct_definition[0].zones[" + str(zone_index) + "].firing positions[" + index + "].area"
-    cluster_field = "scenario_struct_definition[0].zones[" + str(zone_index) + "].firing positions[" + index + "].cluster index"
-    normal_field = "scenario_struct_definition[0].zones[" + str(zone_index) + "].firing positions[" + index + "].normal"
-    
-    run_tool(position_field, position)
-    run_tool(frame_field, ref_frame)
-    run_tool(flag_field, flags)
-    run_tool(area_field, area)
-    run_tool(cluster_field, cluster)
-    run_tool(normal_field, normal)
-    
-    print("firing position " + index + " done")
-"""
