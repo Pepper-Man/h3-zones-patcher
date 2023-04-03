@@ -85,6 +85,36 @@ for zone_name in zones_list:
     i += 1
 out.close()
 
+# DATA EXTRACTION DONE
+#####################################################
+# USER MANUAL ADDING TIME
+
+with open('zones_output.txt', 'r') as data:
+    text = data.readlines()
+
+zones_count = 0
+areas_count = 0
+fpos_count = 0
+cont_process = False
+
+for line in text:
+    if ("Zone:" in line):
+        if (zones_count != 0):
+           print ("Zone " + str(zones_count) + " needs " + str(areas_count) + " areas and " + str(fpos_count) + " firing positions!") 
+        areas_count = 0
+        fpos_count = 0
+        zones_count += 1
+    if ("areas" in line):
+        areas_count += 1
+    if ("index = " in line):
+        fpos_count += 1
+
+data.close()
+
+while (cont_process == False):  
+    choice = input("\nPlease add the correct number of areas and firing positions\nto each zone as per the information above.\nType \"continue\" once done to begin the patching process:\n")
+    if (choice.lower() == "continue"):
+        break
 # DATA CONVERSION DONE
 #####################################################
 # PATCHING START
