@@ -125,8 +125,7 @@ def run_tool(field, data):
     os.chdir(h3ek_directory.replace('\\', '/').strip('"'))
     process = subprocess.Popen(' '.join(f'"{arg}"' for arg in command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = process.communicate()
-    print(output.decode('utf-8'))
-    print(error.decode('utf-8'))
+    print(output.decode('utf-8').strip() + "\n")
 
 with open('zones_output.txt', 'r') as data:
     text = data.readlines()
