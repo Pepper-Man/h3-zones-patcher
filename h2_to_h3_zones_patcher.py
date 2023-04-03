@@ -92,7 +92,7 @@ out.close()
 def run_tool(field, data):
     toolpath = h3ek_directory.strip('"') + '\\tool.exe'
     command = [toolpath, "patch-tag-field", "pepperh2\levels\oldmombasa\oldmombasa.scenario", field, data]
-    os.chdir('C:/Program Files (x86)/Steam/steamapps/common/H3EK')
+    os.chdir(h3ek_directory.replace('\\', '/').strip('"'))
     process = subprocess.Popen(' '.join(f'"{arg}"' for arg in command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = process.communicate()
     print(output.decode('utf-8'))
@@ -164,6 +164,8 @@ for line in text:
             area_data_count = 0
             area_index += 1
         
+### FIRING POSITION FUNCTIONALITY
+
 
 bch_out.close()
 for fire_pos in all_positions:
