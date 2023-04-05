@@ -95,6 +95,7 @@ with open('zones_output.txt', 'r') as data:
 zones_count = 0
 areas_count = 0
 fpos_count = 0
+total_fpos_count = 0
 
 for line in text:
     if ("Zone:" in line):
@@ -110,13 +111,15 @@ for line in text:
 
 data.close()
 
+### 70 SECONDS PER 10 FIRING POSITIONS
+
 # Ask user to add blank zones, areas and firing positions to their scenario
 while (True):  
     choice = input("\nPlease add the correct number of areas and firing positions\nto each zone as per the information above.\nType \"continue\" once done to begin the patching process:\n")
     if (choice.lower() == "continue"):
         break
     
-# DATA CONVERSION DONE
+# USER SECTION DONE
 #####################################################
 # PATCHING START
 
@@ -127,7 +130,7 @@ def run_tool(field, data):
     os.chdir(h3ek_directory.replace('\\', '/').strip('"'))
     process = subprocess.Popen(' '.join(f'"{arg}"' for arg in command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output = process.communicate()
-    print(output.decode('utf-8').strip() + "\n")
+    print(output[0].decode('utf-8').strip() + "\n")
 
 with open('zones_output.txt', 'r') as data:
     text = data.readlines()
@@ -149,7 +152,7 @@ previous_was_actualflag = False
 for line in text:
     if ("Zone:" in line):
         zone += 1
-        print("next zone")
+        print(line.strip())
         # line is zone header
         continue
     elif ("Areas:" in line):
@@ -169,6 +172,7 @@ for line in text:
     
     # Patch areas
     elif (areas):
+        
         # line is area data
         if (previous_was_actualflag):
             previous_was_actualflag = False
@@ -230,8 +234,16 @@ for line in text:
             field_path = "scenario_struct_definition[0].zones[" + str(zone) + "].firing positions[" + str(fpos_index) + "].flags"
             print("patching flags")
             run_tool(field_path, re.sub(r'[^0-9]', '', line.strip())) # make sure to only grab the number
+            # TODO: Do this goddam section better:
+            if (int(line.strip()) > 75):
+                fpos_flag_line_skip = 3
+            elif (int(line.strip()) < 10 and int(line.strip()) >= 1):
+                fpos_flag_line_skip = 1
+            elif (int(line.strip()) == 0):
+                fpos_flag_line_skip = 0
+            else:
+                fpos_flag_line_skip = 2
             fpos_data_count += 1
-            fpos_flag_line_skip = 2
         elif (fpos_data_count == 4):
             # line is area
             field_path = "scenario_struct_definition[0].zones[" + str(zone) + "].firing positions[" + str(fpos_index) + "].area"
