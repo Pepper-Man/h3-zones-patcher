@@ -92,22 +92,25 @@ out.close()
 with open('zones_output.txt', 'r') as data:
     text = data.readlines()
 
-zones_count = 0
+zone_count = 0
 areas_count = 0
 fpos_count = 0
 total_fpos_count = 0
 
 for line in text:
     if ("Zone:" in line):
-        if (zones_count != 0):
-           print ("Zone " + str(zones_count) + " needs " + str(areas_count) + " areas and " + str(fpos_count) + " firing positions!") 
+        if (zone_count != 0):
+            print (name + " needs " + str(areas_count) + " areas and " + str(fpos_count) + " firing positions!")
+        name = line.strip()
         areas_count = 0
         fpos_count = 0
-        zones_count += 1
-    if ("areas" in line):
+        zone_count += 1
+    if ("area" in line and "vehicle area" not in line):
         areas_count += 1
     if ("index = " in line):
         fpos_count += 1
+        
+print (name + " needs " + str(areas_count) + " areas and " + str(fpos_count) + " firing positions!")
 
 data.close()
 
@@ -139,7 +142,7 @@ open("batched_commands.txt", 'w').close() # Clear previous commands
 bch_out = open('batched_commands.txt', 'a')
 
 # Variables
-zone = -1
+zone = 12
 areas = False
 fpos = False
 area_index = -1
@@ -172,7 +175,7 @@ for line in text:
     
     # Patch areas
     elif (areas):
-        
+        continue
         # line is area data
         if (previous_was_actualflag):
             previous_was_actualflag = False
