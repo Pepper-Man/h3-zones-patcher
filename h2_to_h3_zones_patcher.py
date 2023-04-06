@@ -269,6 +269,12 @@ for line in text:
             run_tool(field_path, line.strip('\n'))
             fpos_data_count = 0
             fpos_index += 1
-        
+
+while(True):
+    print("\nPatching complete, type Exit to close the program:")
+    user_input = input()
+    if (user_input.lower() == "exit"):
+        break
+     
 bch_out.close()
 log.close()
