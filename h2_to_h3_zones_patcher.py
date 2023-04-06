@@ -95,6 +95,7 @@ with open('zones_output.txt', 'r') as data:
 zone_count = 0
 areas_count = 0
 fpos_count = 0
+total_areas_count = 0
 total_fpos_count = 0
 
 for line in text:
@@ -107,14 +108,22 @@ for line in text:
         zone_count += 1
     if ("area" in line and "vehicle area" not in line):
         areas_count += 1
+        total_areas_count += 1
     if ("index = " in line):
         fpos_count += 1
+        total_fpos_count += 1
         
 print (name + " needs " + str(areas_count) + " areas and " + str(fpos_count) + " firing positions!")
 
 data.close()
 
-### 70 SECONDS PER 10 FIRING POSITIONS
+### 1433 SECONDS FOR 391 AREAS = 3.66 seconds per area
+### 23903 SECONDS FOR 3267 FIRING POSITIONS = 7.31 seconds per fpos
+total_seconds = round((3.66 * total_areas_count) + (7.31 * total_fpos_count))
+hours = total_seconds // 3600
+minutes = (total_seconds % 3600) // 60
+seconds = total_seconds % 60
+print(f"Estimated to patch all: {hours} hours, {minutes} minutes, {seconds} seconds")
 
 # Ask user to add blank zones, areas and firing positions to their scenario
 while (True):  
