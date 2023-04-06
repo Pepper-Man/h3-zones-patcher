@@ -133,6 +133,8 @@ def run_tool(field, data):
     os.chdir(h3ek_directory.replace('\\', '/').strip('"'))
     process = subprocess.Popen(' '.join(f'"{arg}"' for arg in command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output = process.communicate()
+    if ("scenario_struct_definition" in output):
+        log.write("\nPatching failed for:\nPath: " + field + "\nData: " + data)
     print(output[0].decode('utf-8').strip() + "\n")
 
 with open('zones_output.txt', 'r') as data:
@@ -140,9 +142,11 @@ with open('zones_output.txt', 'r') as data:
 
 open("batched_commands.txt", 'w').close() # Clear previous commands
 bch_out = open('batched_commands.txt', 'a')
+open('patcher.log', 'w').close()
+log = open('patcher.log', 'a')
 
 # Variables
-zone = 12
+zone = -1
 areas = False
 fpos = False
 area_index = -1
@@ -175,7 +179,6 @@ for line in text:
     
     # Patch areas
     elif (areas):
-        continue
         # line is area data
         if (previous_was_actualflag):
             previous_was_actualflag = False
@@ -268,3 +271,4 @@ for line in text:
             fpos_index += 1
         
 bch_out.close()
+log.close()
