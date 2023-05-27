@@ -252,7 +252,7 @@ for line in text:
             # TODO: Do this goddam section better:
             if (int(line.strip()) >= 90):
                 fpos_flag_line_skip = 4
-            elif (int(line.strip()) > 73):
+            elif (int(line.strip()) > 70):
                 fpos_flag_line_skip = 3
             elif (int(line.strip()) < 10 and int(line.strip()) >= 1):
                 fpos_flag_line_skip = 1
