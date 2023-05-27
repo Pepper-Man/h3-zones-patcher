@@ -250,7 +250,9 @@ for line in text:
             print("patching flags")
             run_tool(field_path, re.sub(r'[^0-9]', '', line.strip())) # make sure to only grab the number
             # TODO: Do this goddam section better:
-            if (int(line.strip()) > 75):
+            if (int(line.strip()) >= 90):
+                fpos_flag_line_skip = 4
+            elif (int(line.strip()) > 73):
                 fpos_flag_line_skip = 3
             elif (int(line.strip()) < 10 and int(line.strip()) >= 1):
                 fpos_flag_line_skip = 1
